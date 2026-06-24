@@ -1,909 +1,1072 @@
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="ro">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CHERII CAFE | Un Sanctuaire Zen à Paris</title>
-    
-    <!-- Premium Google Fonts: Cormorant Garamond (Serif), Jost (Sans-serif) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@200;300;400;500&display=swap" rel="stylesheet">
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        cherii: {
-                            bg: '#161311',       /* Fundalul intunecat (espresso/umbra) */
-                            text: '#f5f0e6',     /* Alb-crem luminos pentru textul principal (foarte vizibil) */
-                            muted: '#b5a999',    /* Crem estompat pentru gramaje si retete */
-                            gold: '#d4b595',     /* Auriu/Lemn cald pentru preturi si titluri */
-                            accent: '#a63c3c'    /* Rosu de artar japonez */
-                        }
-                    },
-                    fontFamily: {
-                        sans: ['Jost', 'sans-serif'],
-                        serif: ['Cormorant Garamond', 'serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    
-    <style>
-        html { scroll-behavior: smooth; }
-        
-        body {
-            /* Fotografia 2 ca fundal global, fixa, care nu se misca cand dai scroll */
-            background-image: url('final 2.png');
-            background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-            color: theme('colors.cherii.text');
-            overflow-x: hidden;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Generator de Facturi — PFA &amp; Freelanceri</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
-        /* Filtrul "Moody" care sta peste imaginea de fundal ca textul luminos sa fie foarte clar */
-        .global-overlay {
-            position: fixed;
-            inset: 0;
-            background: rgba(20, 16, 14, 0.88); /* Un negru-maroniu transparent foarte elegant */
-            z-index: -1;
-            pointer-events: none;
-        }
+:root{
+  --paper:#F7F3E9;
+  --paper-edge:#E7E0CF;
+  --ink:#2B2825;
+  --ink-soft:#6B6459;
+  --forest:#1F3D2E;
+  --forest-light:#2F5742;
+  --gold:#C28B2E;
+  --stamp-red:#A6433A;
+  --stamp-green:#3F6B4A;
+  --stamp-amber:#A6781F;
+}
 
-        /* Imagini in Parallax pentru Hero si Footer */
-        .parallax-section {
-            background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
+*{ box-sizing:border-box; }
+html,body{ margin:0; height:100%; }
+body{
+  font-family:'Inter',sans-serif;
+  background:#E4DED0;
+  color:var(--ink);
+  display:flex;
+  min-height:100vh;
+}
 
-        /* Efect de imagine in reviste (usoara marire la hover) */
-        .img-editorial {
-            transition: transform 1.5s cubic-bezier(0.2, 1, 0.2, 1), filter 1s ease;
-            filter: brightness(0.9);
-        }
-        .img-container {
-            overflow: hidden;
-            border-radius: 4px;
-        }
-        .img-container:hover .img-editorial {
-            transform: scale(1.03);
-            filter: brightness(1.05);
-        }
+::selection{ background:var(--gold); color:#fff; }
 
-        /* Liniile Meniului Premium */
-        .menu-row {
-            transition: all 0.3s ease;
-        }
-        .menu-row:hover {
-            transform: translateX(6px);
-        }
+/* ---------- Form panel ---------- */
+.form-panel{
+  width:400px;
+  flex-shrink:0;
+  background:#FFFFFF;
+  border-right:1px solid var(--paper-edge);
+  padding:28px 26px 80px;
+  overflow-y:auto;
+  height:100vh;
+}
+.form-panel h1{
+  font-family:'Lora',serif;
+  font-size:21px;
+  margin:0 0 2px;
+  color:var(--forest);
+  letter-spacing:.2px;
+}
+.form-panel .subtitle{
+  font-size:12.5px;
+  color:var(--ink-soft);
+  margin:0 0 22px;
+}
+.section{
+  margin-bottom:20px;
+  border-top:1px solid var(--paper-edge);
+  padding-top:16px;
+}
+.section:first-of-type{ border-top:none; padding-top:0; }
+.section-title{
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  color:var(--ink-soft);
+  margin-bottom:10px;
+}
+.field{ margin-bottom:10px; }
+.field label{
+  display:block;
+  font-size:12px;
+  font-weight:500;
+  margin-bottom:4px;
+  color:var(--ink);
+}
+.field input[type=text],
+.field input[type=number],
+.field input[type=date],
+.field input[type=email],
+.field select{
+  width:100%;
+  padding:8px 10px;
+  border:1px solid var(--paper-edge);
+  border-radius:6px;
+  font-family:'Inter',sans-serif;
+  font-size:13px;
+  color:var(--ink);
+  background:#FCFBF8;
+}
+.field input:focus, .field select:focus{
+  outline:none;
+  border-color:var(--forest-light);
+  box-shadow:0 0 0 3px rgba(31,61,46,.10);
+}
+.row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.checkbox-field{
+  display:flex; align-items:flex-start; gap:8px;
+  font-size:12.5px; color:var(--ink); margin-bottom:10px;
+  cursor:pointer;
+}
+.checkbox-field input{ margin-top:2px; }
 
-        /* Scrollbar personalizat */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: theme('colors.cherii.bg'); }
-        ::-webkit-scrollbar-thumb { background: theme('colors.cherii.gold'); }
+/* items table in form */
+.item-row{
+  border:1px solid var(--paper-edge);
+  border-radius:8px;
+  padding:10px;
+  margin-bottom:8px;
+  background:#FCFBF8;
+  position:relative;
+}
+.item-row .row2{ margin-bottom:8px; }
+.item-row .row3{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.item-row .remove-item{
+  position:absolute; top:8px; right:8px;
+  background:none; border:none; color:var(--ink-soft);
+  cursor:pointer; font-size:15px; line-height:1; padding:2px 4px;
+  border-radius:4px;
+}
+.item-row .remove-item:hover{ background:#F2E9E0; color:var(--stamp-red); }
+.btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  padding:9px 14px;
+  border-radius:7px;
+  border:1px solid var(--paper-edge);
+  background:#fff;
+  color:var(--ink);
+  font-size:12.5px; font-weight:600;
+  cursor:pointer;
+  font-family:'Inter',sans-serif;
+  transition:transform .08s ease;
+}
+.btn:active{ transform:scale(.97); }
+.btn-add{ width:100%; border-style:dashed; color:var(--forest); }
+.btn-add:hover{ background:#F2F6F3; }
+.btn-primary{ background:var(--forest); color:#fff; border-color:var(--forest); }
+.btn-primary:hover{ background:var(--forest-light); }
+.btn-block{ width:100%; }
+.btn-ghost{ background:none; border-color:transparent; color:var(--ink-soft); }
+.btn-ghost:hover{ color:var(--stamp-red); }
 
-        .reveal {
-            opacity: 0;
-            transform: translateY(30px);
-            transition: all 1.2s cubic-bezier(0.2, 1, 0.2, 1);
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        .delay-100 { transition-delay: 100ms; }
-        .delay-200 { transition-delay: 200ms; }
-        .delay-300 { transition-delay: 300ms; }
-        .delay-400 { transition-delay: 400ms; }
+.actions-row{ display:flex; gap:8px; margin-top:4px; }
 
-        /* Custom Cursor */
-        * { cursor: none !important; }
-        #custom-cursor {
-            position: fixed;
-            width: 10px; height: 10px;
-            background: #d4b595;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            transition: width 0.3s, height 0.3s, background 0.3s, opacity 0.3s;
-        }
-        #custom-cursor-ring {
-            position: fixed;
-            width: 36px; height: 36px;
-            border: 1px solid rgba(212,181,149,0.5);
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9998;
-            transform: translate(-50%, -50%);
-            transition: all 0.15s ease-out;
-        }
-        body:hover #custom-cursor { opacity: 1; }
-        a:hover ~ #custom-cursor, button:hover ~ #custom-cursor { width: 20px; height: 20px; }
+/* template picker */
+.template-grid{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; }
+.template-opt{
+  border:1.5px solid var(--paper-edge);
+  border-radius:8px;
+  padding:10px 6px;
+  text-align:center;
+  cursor:pointer;
+  font-size:11px;
+  font-weight:600;
+  color:var(--ink-soft);
+  position:relative;
+  background:#FCFBF8;
+}
+.template-opt.active{ border-color:var(--forest); color:var(--forest); background:#F2F6F3; }
+.template-opt .lock{
+  position:absolute; top:5px; right:6px; font-size:10px;
+}
+.template-opt .swatch{
+  height:30px; border-radius:4px; margin-bottom:6px;
+}
+.swatch.classic{ background:linear-gradient(135deg,#F7F3E9,#E7E0CF); border:1px solid var(--paper-edge); }
+.swatch.modern{ background:linear-gradient(135deg,#1F3D2E,#2F5742); }
+.swatch.minimal{ background:#fff; border:1px solid #ddd; }
 
-        /* Header scroll effect */
-        header.scrolled {
-            background: rgba(22,19,17,0.97) !important;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 1px 0 rgba(212,181,149,0.1);
-        }
+.pro-box{
+  border:1px solid var(--paper-edge);
+  border-radius:8px;
+  padding:12px;
+  background:#FBF7EE;
+}
+.pro-box.unlocked{ background:#F2F6F3; border-color:#cfe0d6; }
+.pro-box p{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
+.pro-box .status{ font-size:12px; font-weight:600; color:var(--forest); display:flex; align-items:center; gap:6px; }
+.license-row{ display:flex; gap:6px; margin-top:4px; }
+.license-row input{ flex:1; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:.5px; }
+.license-msg{ font-size:11.5px; margin-top:6px; }
+.license-msg.ok{ color:var(--forest); }
+.license-msg.err{ color:var(--stamp-red); }
 
-        /* Mobile menu */
-        #mobile-menu {
-            transform: translateY(-100%);
-            transition: transform 0.6s cubic-bezier(0.2, 1, 0.2, 1);
-        }
-        #mobile-menu.open {
-            transform: translateY(0);
-        }
-        .hamburger-line {
-            display: block;
-            width: 24px; height: 1px;
-            background: #f5f0e6;
-            transition: all 0.4s ease;
-        }
-        #hamburger.open .hamburger-line:nth-child(1) { transform: translateY(6px) rotate(45deg); }
-        #hamburger.open .hamburger-line:nth-child(2) { opacity: 0; transform: scaleX(0); }
-        #hamburger.open .hamburger-line:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+.field-hint{ font-size:11px; color:var(--ink-soft); margin-top:4px; }
 
-        /* Reservation section */
-        .reservation-btn {
-            position: relative;
-            display: inline-block;
-            overflow: hidden;
-            border: 1px solid rgba(212,181,149,0.6);
-            padding: 18px 56px;
-            letter-spacing: 0.3em;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            color: #f5f0e6;
-            transition: color 0.5s ease;
-        }
-        .reservation-btn::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: #d4b595;
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.5s cubic-bezier(0.2, 1, 0.2, 1);
-        }
-        .reservation-btn:hover::before { transform: scaleX(1); }
-        .reservation-btn:hover { color: #161311; }
-        .reservation-btn span { position: relative; z-index: 1; }
+/* ---------- Preview panel ---------- */
+.preview-panel{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:36px 24px 60px;
+  overflow-y:auto;
+  height:100vh;
+}
+.preview-toolbar{
+  width:100%; max-width:760px;
+  display:flex; justify-content:space-between; align-items:center;
+  margin-bottom:18px;
+}
+.preview-toolbar .left{ font-size:12.5px; color:var(--ink-soft); }
+.preview-toolbar .right{ display:flex; gap:8px; }
 
-        /* Social links hover */
-        .social-link {
-            transition: color 0.3s, letter-spacing 0.3s;
-        }
-        .social-link:hover {
-            color: #d4b595;
-            letter-spacing: 0.35em;
-        }
+.invoice-paper{
+  width:100%; max-width:760px;
+  background:#fff;
+  box-shadow:0 10px 40px rgba(43,40,37,.15);
+  position:relative;
+  min-height:1000px;
+  padding:56px 60px;
+  font-family:'Inter',sans-serif;
+}
 
-        @media (max-width: 768px) {
-            * { cursor: auto !important; }
-            #custom-cursor, #custom-cursor-ring { display: none; }
-        }
-    </style>
+/* CLASSIC template */
+.tpl-classic{ background:var(--paper); border:1px solid var(--paper-edge); }
+.tpl-classic .inv-head{ display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:36px; border-bottom:2px solid var(--forest); padding-bottom:24px; }
+.tpl-classic .inv-title{ font-family:'Lora',serif; font-size:30px; color:var(--forest); margin:0 0 4px; }
+.tpl-classic .inv-sub{ font-family:'JetBrains Mono',monospace; font-size:13px; color:var(--ink-soft); }
+.tpl-classic .inv-issuer-name{ font-family:'Lora',serif; font-size:17px; color:var(--ink); margin-bottom:2px; }
+.tpl-classic .parties{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:30px; }
+.tpl-classic .party-label{ font-size:10.5px; letter-spacing:1.2px; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:6px; }
+.tpl-classic .party-detail{ font-size:13px; line-height:1.6; color:var(--ink); }
+.tpl-classic table{ width:100%; border-collapse:collapse; margin-bottom:24px; }
+.tpl-classic th{ text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.8px; color:var(--ink-soft); padding:8px 6px; border-bottom:2px solid var(--forest); }
+.tpl-classic td{ font-size:13px; padding:10px 6px; border-bottom:1px solid var(--paper-edge); }
+.tpl-classic td.num, .tpl-classic th.num{ text-align:right; font-family:'JetBrains Mono',monospace; }
+.tpl-classic .totals{ margin-left:auto; width:280px; }
+.tpl-classic .totals .trow{ display:flex; justify-content:space-between; font-size:13px; padding:6px 0; }
+.tpl-classic .totals .grand{ font-size:18px; font-weight:700; color:var(--forest); border-top:2px solid var(--forest); padding-top:10px; margin-top:6px; font-family:'JetBrains Mono',monospace; }
+.tpl-classic .meta-strip{ display:flex; gap:28px; margin-bottom:28px; }
+.tpl-classic .meta-item .k{ font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:var(--ink-soft); }
+.tpl-classic .meta-item .v{ font-size:13px; font-family:'JetBrains Mono',monospace; color:var(--ink); }
+.tpl-classic .footnote{ font-size:11px; color:var(--ink-soft); margin-top:30px; line-height:1.6; border-top:1px solid var(--paper-edge); padding-top:14px; }
+
+/* MODERN template */
+.tpl-modern{ background:#fff; padding:0; }
+.tpl-modern .inv-head{ background:var(--forest); color:#fff; padding:44px 60px 30px; }
+.tpl-modern .inv-title{ font-family:'Inter',sans-serif; font-weight:700; font-size:13px; letter-spacing:3px; text-transform:uppercase; color:var(--gold); margin:0 0 14px; }
+.tpl-modern .inv-issuer-name{ font-size:24px; font-weight:700; margin-bottom:4px; }
+.tpl-modern .inv-sub{ font-size:12.5px; opacity:.75; }
+.tpl-modern .body-pad{ padding:36px 60px 60px; }
+.tpl-modern .parties{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:30px; }
+.tpl-modern .party-label{ font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); font-weight:700; margin-bottom:6px; }
+.tpl-modern .party-detail{ font-size:13px; line-height:1.6; color:var(--ink); }
+.tpl-modern table{ width:100%; border-collapse:collapse; margin-bottom:24px; }
+.tpl-modern th{ text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:#fff; background:var(--forest); padding:10px 8px; }
+.tpl-modern th:first-child{ border-radius:6px 0 0 6px; }
+.tpl-modern th:last-child{ border-radius:0 6px 6px 0; }
+.tpl-modern td{ font-size:13px; padding:11px 8px; border-bottom:1px solid #EFEFEF; }
+.tpl-modern td.num, .tpl-modern th.num{ text-align:right; font-family:'JetBrains Mono',monospace; }
+.tpl-modern .totals{ margin-left:auto; width:280px; background:#F7F8F6; border-radius:10px; padding:16px 18px; }
+.tpl-modern .totals .trow{ display:flex; justify-content:space-between; font-size:13px; padding:5px 0; }
+.tpl-modern .totals .grand{ font-size:19px; font-weight:700; color:var(--forest); padding-top:10px; margin-top:6px; font-family:'JetBrains Mono',monospace; }
+.tpl-modern .meta-strip{ display:flex; gap:0; margin-bottom:28px; border:1px solid #EFEFEF; border-radius:10px; overflow:hidden; }
+.tpl-modern .meta-item{ flex:1; padding:12px 16px; border-right:1px solid #EFEFEF; }
+.tpl-modern .meta-item:last-child{ border-right:none; }
+.tpl-modern .meta-item .k{ font-size:9.5px; text-transform:uppercase; letter-spacing:.8px; color:var(--ink-soft); }
+.tpl-modern .meta-item .v{ font-size:13px; font-weight:600; color:var(--ink); }
+.tpl-modern .footnote{ font-size:11px; color:var(--ink-soft); margin-top:30px; line-height:1.6; }
+
+/* MINIMAL template */
+.tpl-minimal{ background:#fff; }
+.tpl-minimal .inv-head{ display:flex; justify-content:space-between; align-items:baseline; margin-bottom:48px; }
+.tpl-minimal .inv-title{ font-family:'Inter',sans-serif; font-weight:400; font-size:13px; letter-spacing:4px; text-transform:uppercase; color:#B7B2A6; }
+.tpl-minimal .inv-issuer-name{ font-size:15px; font-weight:600; color:var(--ink); }
+.tpl-minimal .inv-sub{ font-size:12px; color:#B7B2A6; font-family:'JetBrains Mono',monospace; }
+.tpl-minimal .parties{ display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:40px; }
+.tpl-minimal .party-label{ font-size:10px; letter-spacing:1.2px; text-transform:uppercase; color:#B7B2A6; margin-bottom:8px; }
+.tpl-minimal .party-detail{ font-size:13px; line-height:1.7; color:var(--ink); }
+.tpl-minimal table{ width:100%; border-collapse:collapse; margin-bottom:30px; }
+.tpl-minimal th{ text-align:left; font-size:10px; text-transform:uppercase; letter-spacing:.8px; color:#B7B2A6; font-weight:400; padding:0 6px 10px; border-bottom:1px solid #222; }
+.tpl-minimal td{ font-size:13px; padding:13px 6px; border-bottom:1px solid #F0EFEC; color:var(--ink); }
+.tpl-minimal td.num, .tpl-minimal th.num{ text-align:right; font-family:'JetBrains Mono',monospace; }
+.tpl-minimal .totals{ margin-left:auto; width:260px; }
+.tpl-minimal .totals .trow{ display:flex; justify-content:space-between; font-size:12.5px; padding:5px 0; color:var(--ink-soft); }
+.tpl-minimal .totals .grand{ font-size:20px; font-weight:600; color:var(--ink); border-top:1px solid #222; padding-top:12px; margin-top:8px; font-family:'JetBrains Mono',monospace; }
+.tpl-minimal .meta-strip{ display:flex; gap:36px; margin-bottom:40px; }
+.tpl-minimal .meta-item .k{ font-size:9.5px; text-transform:uppercase; letter-spacing:.8px; color:#B7B2A6; }
+.tpl-minimal .meta-item .v{ font-size:13px; font-family:'JetBrains Mono',monospace; color:var(--ink); }
+.tpl-minimal .footnote{ font-size:10.5px; color:#B7B2A6; margin-top:40px; line-height:1.7; }
+
+/* shared bits */
+.inv-watermark{
+  position:absolute;
+  bottom:20px; right:24px;
+  font-size:10.5px;
+  color:#C9C2B3;
+  font-style:italic;
+}
+
+.stamp{
+  position:absolute;
+  top:140px; right:60px;
+  font-family:'JetBrains Mono',monospace;
+  font-weight:700;
+  font-size:22px;
+  letter-spacing:2px;
+  padding:10px 18px;
+  border:3px solid currentColor;
+  border-radius:6px;
+  transform:rotate(-9deg);
+  text-transform:uppercase;
+  opacity:.85;
+}
+.stamp.platit{ color:var(--stamp-green); }
+.stamp.neplatit{ color:var(--stamp-red); }
+.stamp.partial{ color:var(--stamp-amber); }
+
+@media print{
+  body{ background:#fff; }
+  .form-panel, .preview-toolbar{ display:none !important; }
+  .preview-panel{ padding:0; height:auto; overflow:visible; align-items:stretch; }
+  .invoice-paper{ box-shadow:none; max-width:none; min-height:0; }
+}
+
+@media (max-width: 880px){
+  body{ flex-direction:column; }
+  .form-panel{ width:100%; height:auto; border-right:none; border-bottom:1px solid var(--paper-edge); }
+  .preview-panel{ height:auto; }
+}
+</style>
 </head>
-<body class="font-sans font-light antialiased selection:bg-cherii-gold selection:text-cherii-bg">
+<body>
 
-    <!-- CUSTOM CURSOR -->
-    <div id="custom-cursor"></div>
-    <div id="custom-cursor-ring"></div>
+<div class="form-panel">
+  <h1>Generator de Facturi</h1>
+  <p class="subtitle">Pentru PFA &amp; freelanceri din România</p>
 
-    <!-- OVERLAY GLOBAL -->
-    <div class="global-overlay"></div>
-
-    <!-- HEADER (Navigatia) -->
-    <header id="main-header" class="fixed w-full top-0 z-50 p-6 md:p-10 transition-all duration-500 flex justify-between items-center bg-gradient-to-b from-cherii-bg/90 to-transparent">
-        <div class="drop-shadow-lg">
-            <a href="#" class="text-3xl font-serif tracking-[0.2em] uppercase text-cherii-text">CHERII</a>
-        </div>
-        <nav class="hidden md:flex space-x-12 text-xs tracking-[0.3em] uppercase text-cherii-text font-medium drop-shadow-md">
-            <a href="#histoire" class="hover:text-cherii-gold transition-colors duration-300">Histoire</a>
-            <a href="#carte" class="hover:text-cherii-gold transition-colors duration-300">La Carte</a>
-            <a href="#ambiance" class="hover:text-cherii-gold transition-colors duration-300">Ambiance</a>
-            <a href="#reservation" class="hover:text-cherii-gold transition-colors duration-300">Réservation</a>
-            <a href="#contact" class="hover:text-cherii-gold transition-colors duration-300">Contact</a>
-        </nav>
-        <!-- Hamburger button (mobile) -->
-        <button id="hamburger" class="md:hidden flex flex-col gap-[5px] p-2 z-50" aria-label="Menu">
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-        </button>
-    </header>
-
-    <!-- MOBILE MENU -->
-    <div id="mobile-menu" class="fixed inset-0 z-40 bg-cherii-bg flex flex-col items-center justify-center md:hidden">
-        <nav class="flex flex-col items-center space-y-10 text-sm tracking-[0.4em] uppercase text-cherii-text font-medium">
-            <a href="#histoire" class="mobile-nav-link hover:text-cherii-gold transition-colors duration-300">Histoire</a>
-            <a href="#carte" class="mobile-nav-link hover:text-cherii-gold transition-colors duration-300">La Carte</a>
-            <a href="#ambiance" class="mobile-nav-link hover:text-cherii-gold transition-colors duration-300">Ambiance</a>
-            <a href="#reservation" class="mobile-nav-link hover:text-cherii-gold transition-colors duration-300">Réservation</a>
-            <a href="#contact" class="mobile-nav-link hover:text-cherii-gold transition-colors duration-300">Contact</a>
-        </nav>
-        <p class="absolute bottom-12 text-xs tracking-widest text-cherii-muted">Paris, France</p>
+  <div class="section">
+    <div class="section-title">Datele tale (emitent)</div>
+    <div class="field"><label>Nume firmă / PFA</label><input type="text" id="i-name" placeholder="Ex: Popescu Ion PFA"></div>
+    <div class="row2">
+      <div class="field"><label>CUI / CIF</label><input type="text" id="i-cui" placeholder="RO12345678"></div>
+      <div class="field"><label>Nr. Reg. Com.</label><input type="text" id="i-regcom" placeholder="opțional"></div>
     </div>
+    <div class="field"><label>Adresă</label><input type="text" id="i-address" placeholder="Str., nr., oraș, județ"></div>
+    <div class="row2">
+      <div class="field"><label>IBAN</label><input type="text" id="i-iban" placeholder="RO49 AAAA 1B31 ..."></div>
+      <div class="field"><label>Bancă</label><input type="text" id="i-bank" placeholder="Ex: BT, ING"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Email</label><input type="email" id="i-email" placeholder="contact@exemplu.ro"></div>
+      <div class="field"><label>Telefon</label><input type="text" id="i-phone" placeholder="07xx xxx xxx"></div>
+    </div>
+    <label class="checkbox-field">
+      <input type="checkbox" id="i-vatexempt">
+      Neplătitor de TVA (art. 310 Cod fiscal)
+    </label>
+  </div>
 
-    <!-- 1. HERO SECTION (final 1.png) -->
-    <section class="relative h-screen w-full parallax-section shadow-2xl" style="background-image: url('final 1.png');">
-        <div class="absolute inset-0 bg-[#161311]/60"></div>
-        <div class="absolute inset-0 flex flex-col items-center justify-center px-4 drop-shadow-2xl">
-            <p class="text-xs tracking-[0.4em] uppercase mb-8 reveal text-cherii-gold font-medium">Paris, France</p>
-            <h1 class="text-6xl md:text-8xl lg:text-9xl font-serif tracking-widest text-center reveal delay-100 text-cherii-text" style="line-height: 1.1;">
-                L'Harmonie<br><span class="italic font-light text-cherii-text/90">du Temps</span>
-            </h1>
-            <p class="mt-10 text-sm md:text-base tracking-[0.2em] uppercase font-medium reveal delay-200 text-cherii-text">
-                Café de Spécialité & Pâtisserie
-            </p>
+  <div class="section">
+    <div class="section-title">Client</div>
+    <div class="field"><label>Nume client / firmă</label><input type="text" id="c-name" placeholder="Nume client"></div>
+    <div class="row2">
+      <div class="field"><label>CUI / CNP</label><input type="text" id="c-cui" placeholder="opțional"></div>
+      <div class="field"><label>Email</label><input type="email" id="c-email" placeholder="opțional"></div>
+    </div>
+    <div class="field"><label>Adresă</label><input type="text" id="c-address" placeholder="Adresă client"></div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Detalii factură</div>
+    <div class="row2">
+      <div class="field"><label>Serie</label><input type="text" id="m-series" placeholder="FLR"></div>
+      <div class="field"><label>Număr</label><input type="number" id="m-number" min="1"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Dată emitere</label><input type="date" id="m-issue"></div>
+      <div class="field"><label>Dată scadență</label><input type="date" id="m-due"></div>
+    </div>
+    <div class="row2">
+      <div class="field"><label>Loc emitere</label><input type="text" id="m-place" placeholder="București"></div>
+      <div class="field"><label>Monedă</label>
+        <select id="m-currency">
+          <option value="RON">RON</option>
+          <option value="EUR">EUR</option>
+          <option value="USD">USD</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Status plată</label>
+      <select id="m-status">
+        <option value="neplatit">Neplătit</option>
+        <option value="platit">Plătit</option>
+        <option value="partial">Plătit parțial</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Articole / servicii</div>
+    <div id="items-container"></div>
+    <button class="btn btn-add" id="add-item">+ Adaugă articol</button>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Șablon factură</div>
+    <div class="template-grid">
+      <div class="template-opt active" data-tpl="classic">
+        <div class="swatch classic"></div>Clasic
+      </div>
+      <div class="template-opt" data-tpl="modern">
+        <span class="lock">🔒</span>
+        <div class="swatch modern"></div>Modern
+      </div>
+      <div class="template-opt" data-tpl="minimal">
+        <span class="lock">🔒</span>
+        <div class="swatch minimal"></div>Minimal
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Licență Pro</div>
+    <div class="pro-box" id="pro-box">
+      <p>Deblochează șabloanele Modern și Minimal, fără filigran pe factură.</p>
+      <div class="license-row">
+        <input type="text" id="license-input" placeholder="XXXX-XXXX-XXXX-XXXX" maxlength="19">
+        <button class="btn btn-primary" id="activate-btn">Activează</button>
+      </div>
+      <div class="license-msg" id="license-msg"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="actions-row">
+      <button class="btn btn-block" id="new-invoice-btn">Factură nouă</button>
+      <button class="btn btn-primary btn-block" id="print-btn">Printează / PDF</button>
+    </div>
+    <div class="actions-row" style="margin-top:8px;">
+      <button class="btn btn-block" id="export-xml-btn">Descarcă XML (e-Factura)</button>
+    </div>
+    <p class="field-hint">Format UBL 2.1 / CIUS-RO. Verifică fișierul cu validatorul ANAF înainte de încărcare în SPV — formatele oficiale se mai pot schimba.</p>
+    <div class="actions-row" style="margin-top:8px;">
+      <button class="btn btn-ghost btn-block" id="clear-data-btn">Șterge datele salvate</button>
+    </div>
+  </div>
+</div>
+
+<div class="preview-panel">
+  <div class="preview-toolbar">
+    <div class="left">Previzualizare live</div>
+    <div class="right"></div>
+  </div>
+  <div class="invoice-paper" id="invoice-paper"></div>
+</div>
+
+<script>
+const STORAGE_KEY = 'fc_invoice_state_v1';
+const CHARSET = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
+
+function charVal(c){ return CHARSET.indexOf(c); }
+
+function computeChecksum(chars12){
+  let out = '';
+  for(let i=0;i<4;i++){
+    let sum = 0;
+    for(let j=0;j<12;j++){
+      sum += charVal(chars12[j]) * (i+1) * (j+1);
+    }
+    out += CHARSET[sum % CHARSET.length];
+  }
+  return out;
+}
+
+function generateLicense(){
+  let body = '';
+  for(let i=0;i<12;i++){
+    body += CHARSET[Math.floor(Math.random()*CHARSET.length)];
+  }
+  const checksum = computeChecksum(body.split(''));
+  const full = body + checksum;
+  const groups = full.match(/.{1,4}/g);
+  return groups.join('-');
+}
+window.generateLicense = generateLicense;
+
+function validateLicense(code){
+  const clean = code.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(clean.length !== 16) return false;
+  const body = clean.slice(0,12).split('');
+  const checksum = clean.slice(12);
+  for(const ch of body) if(charVal(ch) === -1) return false;
+  return computeChecksum(body) === checksum;
+}
+
+function todayISO(){ return new Date().toISOString().slice(0,10); }
+function addDaysISO(iso, days){
+  const d = new Date(iso);
+  d.setDate(d.getDate()+days);
+  return d.toISOString().slice(0,10);
+}
+function uid(){ return Math.random().toString(36).slice(2,9); }
+
+function defaultState(){
+  return {
+    issuer:{ name:'', cui:'', regCom:'', address:'', iban:'', bank:'', email:'', phone:'', vatExempt:false },
+    client:{ name:'', cui:'', address:'', email:'' },
+    series:'FLR',
+    number:1,
+    issueDate: todayISO(),
+    dueDate: addDaysISO(todayISO(),15),
+    place:'București',
+    currency:'RON',
+    status:'neplatit',
+    template:'classic',
+    items:[ { id:uid(), name:'', qty:1, unit:'buc', price:0, vat:19 } ],
+    isPro:false,
+    licenseCode:''
+  };
+}
+
+let state = defaultState();
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(!raw) return;
+    const saved = JSON.parse(raw);
+    state.issuer = Object.assign(state.issuer, saved.issuer||{});
+    state.isPro = !!saved.isPro;
+    state.licenseCode = saved.licenseCode || '';
+    state.series = saved.series || state.series;
+    if(saved.number) state.number = saved.number;
+    if(saved.template && (state.isPro || saved.template==='classic')) state.template = saved.template;
+  }catch(e){ /* localStorage unavailable, continue without persistence */ }
+}
+
+function saveState(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      issuer: state.issuer,
+      isPro: state.isPro,
+      licenseCode: state.licenseCode,
+      series: state.series,
+      number: state.number,
+      template: state.template
+    }));
+  }catch(e){ /* ignore — storage may be disabled */ }
+}
+
+function syncFormFromState(){
+  document.getElementById('i-name').value = state.issuer.name;
+  document.getElementById('i-cui').value = state.issuer.cui;
+  document.getElementById('i-regcom').value = state.issuer.regCom;
+  document.getElementById('i-address').value = state.issuer.address;
+  document.getElementById('i-iban').value = state.issuer.iban;
+  document.getElementById('i-bank').value = state.issuer.bank;
+  document.getElementById('i-email').value = state.issuer.email;
+  document.getElementById('i-phone').value = state.issuer.phone;
+  document.getElementById('i-vatexempt').checked = state.issuer.vatExempt;
+
+  document.getElementById('c-name').value = state.client.name;
+  document.getElementById('c-cui').value = state.client.cui;
+  document.getElementById('c-address').value = state.client.address;
+  document.getElementById('c-email').value = state.client.email;
+
+  document.getElementById('m-series').value = state.series;
+  document.getElementById('m-number').value = state.number;
+  document.getElementById('m-issue').value = state.issueDate;
+  document.getElementById('m-due').value = state.dueDate;
+  document.getElementById('m-place').value = state.place;
+  document.getElementById('m-currency').value = state.currency;
+  document.getElementById('m-status').value = state.status;
+
+  document.querySelectorAll('.template-opt').forEach(el=>{
+    el.classList.toggle('active', el.dataset.tpl === state.template);
+  });
+
+  refreshProUI();
+}
+
+function refreshProUI(){
+  const box = document.getElementById('pro-box');
+  const msg = document.getElementById('license-msg');
+  document.querySelectorAll('.template-opt').forEach(el=>{
+    const locked = (el.dataset.tpl !== 'classic') && !state.isPro;
+    el.querySelector('.lock') && (el.querySelector('.lock').style.display = locked ? '' : 'none');
+  });
+  if(state.isPro){
+    box.classList.add('unlocked');
+    box.innerHTML = '<div class="status">✓ Versiune Pro activă</div><p style="margin-top:6px;">Toate șabloanele sunt deblocate, fără filigran.</p>';
+  }
+}
+
+function bindItemRow(row){
+  const id = row.dataset.id;
+  const item = state.items.find(i=>i.id===id);
+  row.querySelector('.f-name').addEventListener('input', e=>{ item.name = e.target.value; render(); });
+  row.querySelector('.f-qty').addEventListener('input', e=>{ item.qty = parseFloat(e.target.value)||0; render(); });
+  row.querySelector('.f-unit').addEventListener('input', e=>{ item.unit = e.target.value; render(); });
+  row.querySelector('.f-price').addEventListener('input', e=>{ item.price = parseFloat(e.target.value)||0; render(); });
+  row.querySelector('.f-vat').addEventListener('input', e=>{ item.vat = parseFloat(e.target.value)||0; render(); });
+  row.querySelector('.remove-item').addEventListener('click', ()=>{
+    if(state.items.length <= 1) return;
+    state.items = state.items.filter(i=>i.id!==id);
+    renderItemsForm();
+    render();
+  });
+}
+
+function renderItemsForm(){
+  const container = document.getElementById('items-container');
+  container.innerHTML = state.items.map(item => `
+    <div class="item-row" data-id="${item.id}">
+      <button class="remove-item" title="Șterge articol">✕</button>
+      <div class="field"><label>Denumire</label><input type="text" class="f-name" value="${escapeAttr(item.name)}" placeholder="Ex: Servicii consultanță"></div>
+      <div class="row3">
+        <div class="field"><label>Cantitate</label><input type="number" class="f-qty" value="${item.qty}" min="0" step="0.01"></div>
+        <div class="field"><label>U.M.</label><input type="text" class="f-unit" value="${escapeAttr(item.unit)}"></div>
+        <div class="field"><label>Preț unitar</label><input type="number" class="f-price" value="${item.price}" min="0" step="0.01"></div>
+      </div>
+      <div class="field" style="max-width:120px;"><label>TVA %</label><input type="number" class="f-vat" value="${item.vat}" min="0" max="100"></div>
+    </div>
+  `).join('');
+  container.querySelectorAll('.item-row').forEach(bindItemRow);
+}
+
+function escapeHTML(str){
+  return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function escapeAttr(str){ return escapeHTML(str); }
+function escapeXML(str){
+  return String(str||'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[m]));
+}
+
+const UNIT_CODE_MAP = {
+  'buc':'H87','bucata':'H87','bucăți':'H87','bucati':'H87',
+  'ora':'HUR','oră':'HUR','ore':'HUR',
+  'zi':'DAY','zile':'DAY',
+  'luna':'MON','lună':'MON','luni':'MON',
+  'kg':'KGM','litru':'LTR','litri':'LTR','l':'LTR',
+  'set':'SET','pachet':'XPK','km':'KMT','mp':'MTK','ml':'MTR'
+};
+function unitCode(unit){
+  const key = String(unit||'').trim().toLowerCase();
+  return UNIT_CODE_MAP[key] || 'H87';
+}
+
+function currencyFmt(n, currency){
+  try{
+    return new Intl.NumberFormat('ro-RO', { minimumFractionDigits:2, maximumFractionDigits:2 }).format(n) + ' ' + currency;
+  }catch(e){
+    return n.toFixed(2) + ' ' + currency;
+  }
+}
+
+function computeTotals(){
+  let subtotal = 0, vatTotal = 0;
+  state.items.forEach(it=>{
+    const line = (it.qty||0) * (it.price||0);
+    subtotal += line;
+    if(!state.issuer.vatExempt){
+      vatTotal += line * ((it.vat||0)/100);
+    }
+  });
+  return { subtotal, vatTotal, total: subtotal + vatTotal };
+}
+
+function statusLabel(s){
+  return { neplatit:'NEPLĂTIT', platit:'PLĂTIT', partial:'PLĂTIT PARȚIAL' }[s] || '';
+}
+
+function renderInvoiceHTML(){
+  const { subtotal, vatTotal, total } = computeTotals();
+  const cur = state.currency;
+  const vatExempt = state.issuer.vatExempt;
+
+  const itemsRows = state.items.map(it=>{
+    const line = (it.qty||0)*(it.price||0);
+    return `<tr>
+      <td>${escapeHTML(it.name)||'—'}</td>
+      <td class="num">${it.qty}</td>
+      <td>${escapeHTML(it.unit)}</td>
+      <td class="num">${currencyFmt(it.price, cur)}</td>
+      ${vatExempt ? '' : `<td class="num">${it.vat}%</td>`}
+      <td class="num">${currencyFmt(line, cur)}</td>
+    </tr>`;
+  }).join('');
+
+  const vatHeader = vatExempt ? '' : '<th class="num">TVA</th>';
+
+  const totalsHTML = vatExempt
+    ? `<div class="trow"><span>Total</span><span>${currencyFmt(subtotal, cur)}</span></div>
+       <div class="trow grand"><span>De plată</span><span>${currencyFmt(subtotal, cur)}</span></div>`
+    : `<div class="trow"><span>Subtotal</span><span>${currencyFmt(subtotal, cur)}</span></div>
+       <div class="trow"><span>TVA</span><span>${currencyFmt(vatTotal, cur)}</span></div>
+       <div class="trow grand"><span>De plată</span><span>${currencyFmt(total, cur)}</span></div>`;
+
+  const footnote = vatExempt
+    ? 'Scutit de TVA conform art. 310 din Codul Fiscal (neplătitor de TVA).'
+    : '';
+
+  const stampHTML = `<div class="stamp ${state.status}">${statusLabel(state.status)}</div>`;
+  const watermark = !state.isPro ? '<div class="inv-watermark">Generat cu Generator de Facturi PFA</div>' : '';
+
+  const issuerBlock = `
+    <div class="inv-issuer-name">${escapeHTML(state.issuer.name)||'Numele tău / PFA'}</div>
+    <div class="inv-sub">${[state.issuer.cui, state.issuer.regCom].filter(Boolean).map(escapeHTML).join(' · ')}</div>
+  `;
+
+  const partiesHTML = `
+    <div class="parties">
+      <div>
+        <div class="party-label">Furnizor</div>
+        <div class="party-detail">
+          ${escapeHTML(state.issuer.name)||'—'}<br>
+          ${escapeHTML(state.issuer.address)||''}<br>
+          ${state.issuer.cui ? 'CUI: '+escapeHTML(state.issuer.cui)+'<br>' : ''}
+          ${state.issuer.iban ? 'IBAN: '+escapeHTML(state.issuer.iban)+'<br>' : ''}
+          ${state.issuer.bank ? escapeHTML(state.issuer.bank)+'<br>' : ''}
+          ${state.issuer.email || state.issuer.phone ? [escapeHTML(state.issuer.email), escapeHTML(state.issuer.phone)].filter(Boolean).join(' · ') : ''}
         </div>
-        <div class="absolute bottom-12 left-1/2 -translate-x-1/2 w-px h-24 bg-cherii-text/30 reveal delay-300"></div>
-    </section>
-
-    <!-- 2. HISTOIRE SECTION (final 3.png) - POVESTEA -->
-    <section id="histoire" class="py-32 md:py-48 px-6 md:px-16 max-w-[1600px] mx-auto">
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24 items-center">
-            <div class="lg:col-span-5 lg:col-start-2 reveal">
-                <h2 class="text-xs tracking-[0.3em] uppercase text-cherii-accent mb-6 font-medium">Notre Philosophie</h2>
-                <h3 class="text-4xl md:text-5xl font-serif text-cherii-text leading-snug mb-8 drop-shadow-md">
-                    Un sanctuaire urbain pensé comme une pause poétique.
-                </h3>
-                <div class="space-y-6 text-cherii-text/90 text-lg leading-relaxed font-light">
-                    <p>
-                        Bienvenue chez <span class="text-cherii-gold font-medium">CHERII CAFE</span>. Conçu autour de matériaux nobles et bruts, notre espace s'inspire de l'esthétique japonaise pour créer une atmosphère de sérénité absolue en plein cœur de la ville.
-                    </p>
-                    <p>
-                        Sous la lumière douce de nos lanternes en papier, entourés par la présence apaisante de notre végétation intérieure, nous vous invitons à déguster des cafés de spécialité torréfiés avec soin et des créations culinaires raffinées. Chaque détail, de la texture du bois au parfum de l'espresso, est une invitation à l'ancrage.
-                    </p>
-                </div>
-            </div>
-            
-            <div class="lg:col-span-6 img-container reveal delay-200 shadow-2xl">
-                <img src="final 3.png" alt="Cherii Cafe Interior" class="img-editorial w-full h-auto aspect-[4/5] object-cover border border-cherii-gold/20">
-            </div>
+      </div>
+      <div>
+        <div class="party-label">Client</div>
+        <div class="party-detail">
+          ${escapeHTML(state.client.name)||'—'}<br>
+          ${escapeHTML(state.client.address)||''}<br>
+          ${state.client.cui ? 'CUI/CNP: '+escapeHTML(state.client.cui)+'<br>' : ''}
+          ${escapeHTML(state.client.email)||''}
         </div>
-    </section>
+      </div>
+    </div>
+  `;
 
-    <!-- 3. MENIU SECTION - TOATE CELE 40+ DE PRODUSE -->
-    <section id="carte" class="py-24 px-6 md:px-16 max-w-[1600px] mx-auto">
-        <div class="text-center mb-24 reveal">
-            <h2 class="text-sm tracking-[0.4em] uppercase text-cherii-accent mb-4 font-medium">Dégustation</h2>
-            <h3 class="text-5xl md:text-7xl font-serif text-cherii-text drop-shadow-lg">La Carte</h3>
+  const metaHTML = `
+    <div class="meta-strip">
+      <div class="meta-item"><div class="k">Serie / Număr</div><div class="v">${escapeHTML(state.series)}-${state.number}</div></div>
+      <div class="meta-item"><div class="k">Dată emitere</div><div class="v">${state.issueDate}</div></div>
+      <div class="meta-item"><div class="k">Dată scadență</div><div class="v">${state.dueDate}</div></div>
+      <div class="meta-item"><div class="k">Loc emitere</div><div class="v">${escapeHTML(state.place)}</div></div>
+    </div>
+  `;
+
+  const tableHTML = `
+    <table>
+      <thead><tr>
+        <th>Denumire</th><th class="num">Cant.</th><th>U.M.</th><th class="num">Preț unitar</th>${vatHeader}<th class="num">Valoare</th>
+      </tr></thead>
+      <tbody>${itemsRows || '<tr><td colspan="6" style="color:#999;">Adaugă articole în panoul din stânga</td></tr>'}</tbody>
+    </table>
+  `;
+
+  if(state.template === 'modern'){
+    return `
+      <div class="inv-head">
+        <div>
+          <div class="inv-title">Factură</div>
+          <div class="inv-issuer-name">${escapeHTML(state.issuer.name)||'Numele tău / PFA'}</div>
+          <div class="inv-sub">${[state.issuer.cui, state.issuer.regCom].filter(Boolean).map(escapeHTML).join(' · ')}</div>
         </div>
+      </div>
+      <div class="body-pad">
+        ${metaHTML}
+        ${partiesHTML}
+        ${tableHTML}
+        <div class="totals">${totalsHTML}</div>
+        ${footnote ? `<div class="footnote">${footnote}</div>` : ''}
+      </div>
+      ${stampHTML}
+      ${watermark}
+    `;
+  }
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-x-24 gap-y-32 items-start">
-            
-            <!-- COFFEE DRINKS -->
-            <div class="reveal">
-                <h4 class="text-3xl font-serif italic mb-10 text-cherii-gold border-b border-cherii-gold/20 pb-4">Coffee Drinks</h4>
-                <ul class="space-y-8">
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Espresso</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">2,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Extrait pur et intense (30ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Double Espresso</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">3,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Double dose de café de spécialité (60ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Americano</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">3,50 € / 4,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Small (240ml) / Large (350ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Cappuccino</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">4,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Espresso et lait texturé soyeux (180ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Flat White</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">4,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Double ristretto, micro-mousse de lait fine (180ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Latte</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">5,00 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Espresso doux et lait monté (250ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Filter Coffee</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">4,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Extraction lente V60, pure origine (250ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Seasonal Latte</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">6,00 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Sirop artisanal de saison, espresso, lait (250ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide text-cherii-accent font-medium">Black Sesame Latte</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">8,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Pâte de sésame noir torréfié maison, espresso, lait (250ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide text-cherii-accent font-medium">Pistachio Latte</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">8,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Purée de pistache 100%, espresso, lait texturé (250ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Orange Espresso Tonic</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">7,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Double espresso, tonic artisanal, zestes d'orange (300ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Salted Vanilla Latte</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">6,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Sirop de vanille de Madagascar, pointe de sel (250ml)</span>
-                    </li>
-                    <li class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Tiramisu Latte</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">7,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Inspiré du dessert italien, poudre de cacao fine (250ml)</span>
-                    </li>
-                </ul>
-            </div>
-
-            <div class="space-y-32">
-                <!-- Matcha & Tea -->
-                <div class="reveal delay-100">
-                    <h4 class="text-3xl font-serif italic mb-10 text-cherii-gold border-b border-cherii-gold/20 pb-4">Matcha & Thés</h4>
-                    <ul class="space-y-8">
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Matcha Latte</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">6,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Matcha de Cérémonie d'Uji, monté au fouet bambou (250ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide text-cherii-accent font-medium">Strawberry Matcha</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">7,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Purée de fraises fraîches, lait, matcha cérémonial (300ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Hojicha Latte</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">6,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Thé vert japonais torréfié, notes fumées (250ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Genmaicha Latte</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">5,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Thé vert au riz brun soufflé (250ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Iced Matcha / Iced Hojicha</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">6,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Versions glacées rafraîchissantes (300ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Jasmine / Sencha / Oolong / Black Tea</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">4,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Thé en vrac premium infusé à la minute (300ml)</span>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Cold Drinks -->
-                <div class="reveal delay-200">
-                    <h4 class="text-3xl font-serif italic mb-10 text-cherii-gold border-b border-cherii-gold/20 pb-4">Boissons Fraîches</h4>
-                    <ul class="space-y-8">
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Yuzu Tonic</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">8,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Agrume japonais yuzu, tonic artisanal (300ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">In-house Lemonade / Berry Soda</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">6,00 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Limonade maison pressée à froid (300ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Coffee Tonic</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">6,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Tonic de qualité surmonté d'un shot d'espresso (300ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Seasonal Cream-top Drink</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">7,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Boisson froide, crème fouettée parfumée (250ml)</span>
-                        </li>
-                        <li class="menu-row flex flex-col">
-                            <div class="flex justify-between items-baseline w-full text-cherii-text">
-                                <span class="text-xl tracking-wide">Sparkling Tea / Fruit Tea</span>
-                                <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                                <span class="font-serif text-2xl text-cherii-gold">6,50 €</span>
-                            </div>
-                            <span class="text-sm text-cherii-muted mt-1 italic">Infusion pétillante au verre (200ml)</span>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-
-            <div class="reveal md:col-span-2 mt-12">
-                <h4 class="text-3xl font-serif italic mb-10 text-cherii-gold border-b border-cherii-gold/20 pb-4">Brunch, Toasts & Sandos</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-10">
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide text-cherii-accent font-medium">Avocado Toast with Soft Egg</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">16,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Avocat écrasé, épices douces, œuf mollet sur pain au levain (250g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Smoked Salmon Toast</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">18,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Saumon fumé de qualité, cream cheese à l'aneth, pickles (250g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Mushroom Toast</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">15,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Poêlée de champignons de saison, herbes fraîches, ail (220g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Cheese & Kimchi Toastie</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">14,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Croque-monsieur fondant au fromage et kimchi maison (200g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Syrniki</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">14,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Pancakes russes au fromage blanc, crème fraîche, confiture (3-4 pcs / 200g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide text-cherii-accent font-medium">Chicken Katsu Sando</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">16,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Sandwich japonais: Poulet pané croustillant, chou, sauce tonkatsu (280g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Tamago Sando</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">12,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Sandwich moelleux aux œufs crémeux japonais (220g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Cabbage or Mushroom Savory Pie</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">11,90 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Plăcintă sărată de casă, servită cu salată (1 part / 180g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Seasonal Quiche (slice)</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">11,90 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Quiche de saison, pâte brisée pur beurre (1 part / 180g)</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal md:col-span-2 mt-12">
-                <h4 class="text-3xl font-serif italic mb-10 text-cherii-gold border-b border-cherii-gold/20 pb-4">Gaufres Artisanales (Waffles)</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-10">
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Pistachio Raspberry Waffle</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">15,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Crème de pistache 100%, coulis de framboises fraîches (220g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Apple Caramel Waffle</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">14,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Pommes rôties au caramel beurre salé (220g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Mascarpone Berry Waffle</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">15,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Crème mascarpone légère, fruits rouges frais (220g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Chocolate Sesame Waffle</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">14,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Sauce chocolat noir, pâte de sésame torréfié (220g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Matcha White Chocolate Waffle</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">15,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Ganache chocolat blanc et matcha cérémonial (220g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide text-cherii-accent font-medium">Waffle with Smoked Salmon</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">18,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Gaufre salée, saumon fumé premium, cream cheese (250g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Waffle with Stracciatella & Tomatoes</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">17,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Stracciatella crémeuse, tomates confites, pesto (250g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Waffle with Mushrooms & Soft Egg</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">16,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Poêlée de champignons, œuf coulant (250g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Cheese & Herbs Waffle</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">14,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Fromages fondus, fines herbes fraîches (200g)</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="reveal md:col-span-2 mt-12">
-                <h4 class="text-3xl font-serif italic mb-10 text-cherii-gold border-b border-cherii-gold/20 pb-4">Pâtisseries & Gâteaux (Fait Maison)</h4>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-24 gap-y-10">
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Plain Croissant / Pain au Chocolat</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">4,00 € / 4,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Viennoiserie pur beurre (80g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Kouign-Amann / Spinach Feta Pastry</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">5,50 € / 6,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Feuilletage caramélisé ou chausson salé (90g - 120g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Madeleines (5 pcs) / Choux (filled)</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">6,00 € / 6,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Cuites à la minute ou chou fourré crème diplomate (100g)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide text-cherii-accent font-medium">Medovik</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">8,90 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Gâteau traditionnel, fines couches au miel et crème (1 part)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Pistachio Raspberry Cake</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">10,90 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Signature Cherii, pistaches torréfiées et framboises (1 part)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Matcha Cake</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">8,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Génoise légère et crème onctueuse au matcha (1 part)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Basque Cheesecake / Mille Crêpe Cake</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">9,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Cœur coulant caramélisé ou gâteau aux 20 crêpes (1 part)</span>
-                    </div>
-                    <div class="menu-row flex flex-col">
-                        <div class="flex justify-between items-baseline w-full text-cherii-text">
-                            <span class="text-xl tracking-wide">Apple Tart</span>
-                            <div class="flex-grow border-b border-dotted border-cherii-muted/40 mx-4 relative top-[-6px]"></div>
-                            <span class="font-serif text-2xl text-cherii-gold">7,50 €</span>
-                        </div>
-                        <span class="text-sm text-cherii-muted mt-1 italic">Tartalette aux pommes confites et cannelle (1 part)</span>
-                    </div>
-                </div>
-            </div>
-
+  if(state.template === 'minimal'){
+    return `
+      <div class="inv-head">
+        <div class="inv-title">Factură</div>
+        <div style="text-align:right;">
+          <div class="inv-issuer-name">${escapeHTML(state.issuer.name)||'Numele tău / PFA'}</div>
+          <div class="inv-sub">${escapeHTML(state.series)}-${state.number}</div>
         </div>
-    </section>
+      </div>
+      ${metaHTML}
+      ${partiesHTML}
+      ${tableHTML}
+      <div class="totals">${totalsHTML}</div>
+      ${footnote ? `<div class="footnote">${footnote}</div>` : ''}
+      ${stampHTML}
+      ${watermark}
+    `;
+  }
 
-    <!-- 4. GALERIE / AMBIANCE (final 5.png & final 6.png) -->
-    <section id="ambiance" class="py-32 px-6 md:px-16 max-w-[1600px] mx-auto border-t border-cherii-gold/10">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
-            <!-- Image 5: The Bar -->
-            <div class="img-container reveal shadow-2xl border border-cherii-gold/20">
-                <img src="final 5.png" alt="Le Bar" class="img-editorial w-full h-auto aspect-[4/5] object-cover">
-                <div class="bg-[#161311]/90 p-4 absolute bottom-0 w-full text-center">
-                    <p class="text-xs tracking-[0.2em] uppercase text-cherii-gold font-medium">L'Artisanat</p>
-                </div>
-            </div>
-            
-            <!-- Image 6: Window View -->
-            <div class="img-container reveal delay-200 md:-translate-y-24 shadow-2xl border border-cherii-gold/20">
-                <img src="final 6.png" alt="Vue sur Paris" class="img-editorial w-full h-auto aspect-[3/4] object-cover">
-                <div class="bg-[#161311]/90 p-4 absolute bottom-0 w-full text-center">
-                    <p class="text-xs tracking-[0.2em] uppercase text-cherii-gold font-medium">La Lumière</p>
-                </div>
-            </div>
-        </div>
-    </section>
+  // classic (default)
+  return `
+    <div class="inv-head">
+      <div>
+        <div class="inv-title">Factură</div>
+        <div class="inv-sub">${escapeHTML(state.series)}-${state.number}</div>
+      </div>
+      <div style="text-align:right;">
+        ${issuerBlock}
+      </div>
+    </div>
+    ${metaHTML}
+    ${partiesHTML}
+    ${tableHTML}
+    <div class="totals">${totalsHTML}</div>
+    ${footnote ? `<div class="footnote">${footnote}</div>` : ''}
+    ${stampHTML}
+    ${watermark}
+  `;
+}
 
-    <!-- RESERVATION SECTION -->
-    <section id="reservation" class="py-32 md:py-48 px-6 md:px-16 border-t border-cherii-gold/10">
-        <div class="max-w-[800px] mx-auto text-center">
-            <div class="reveal">
-                <p class="text-xs tracking-[0.4em] uppercase text-cherii-accent mb-6 font-medium">Votre Moment</p>
-                <h3 class="text-5xl md:text-7xl font-serif text-cherii-text mb-6 drop-shadow-lg">Réservation</h3>
-                <p class="text-cherii-muted font-light text-lg leading-relaxed mb-16 max-w-md mx-auto">
-                    Réservez votre table pour une expérience immersive. Nous accueillons groupes et événements privés sur demande.
-                </p>
-                <a href="mailto:bonjour@cheriicafe.fr?subject=Réservation" class="reservation-btn inline-block">
-                    <span>Réserver une Table</span>
-                </a>
-                <p class="text-xs tracking-widest text-cherii-muted/60 mt-10 font-light">Ou appelez-nous · <span class="text-cherii-gold/70">+33 1 42 00 00 00</span></p>
-            </div>
-        </div>
-    </section>
+function render(){
+  const paper = document.getElementById('invoice-paper');
+  paper.className = 'invoice-paper tpl-' + state.template;
+  paper.innerHTML = renderInvoiceHTML();
+  saveState();
+}
 
-    <!-- 5. FOOTER / CONTACT (final 7.png) -->
-    <footer id="contact" class="relative w-full py-32 parallax-section border-t border-cherii-gold/20" style="background-image: url('final 7.png');">
-        <div class="absolute inset-0 bg-[#161311]/90"></div> 
-        
-        <div class="relative z-10 max-w-[1400px] mx-auto px-6 md:px-16 grid grid-cols-1 md:grid-cols-3 gap-16 text-cherii-text text-center md:text-left drop-shadow-md">
-            
-            <div class="reveal">
-                <h4 class="text-4xl font-serif tracking-[0.2em] uppercase mb-6 text-cherii-gold">CHERII</h4>
-                <p class="font-light tracking-wide text-cherii-text/80 leading-relaxed mb-6">
-                    Votre sanctuaire caféiné.<br>
-                    Esthétique zen, saveurs absolues.
-                </p>
-                <div class="flex space-x-6 mt-8 justify-center md:justify-start">
-                    <a href="#" class="social-link text-xs tracking-[0.3em] uppercase text-cherii-text/60 font-medium">Instagram</a>
-                    <span class="text-cherii-gold/20">·</span>
-                    <a href="#" class="social-link text-xs tracking-[0.3em] uppercase text-cherii-text/60 font-medium">TikTok</a>
-                    <span class="text-cherii-gold/20">·</span>
-                    <a href="#" class="social-link text-xs tracking-[0.3em] uppercase text-cherii-text/60 font-medium">Pinterest</a>
-                </div>
-            </div>
+/* ---- field bindings ---- */
+function bindField(id, path, parser){
+  document.getElementById(id).addEventListener('input', e=>{
+    const val = parser ? parser(e.target.value) : e.target.value;
+    const parts = path.split('.');
+    if(parts.length===2){ state[parts[0]][parts[1]] = val; }
+    else { state[path] = val; }
+    render();
+  });
+}
+bindField('i-name','issuer.name');
+bindField('i-cui','issuer.cui');
+bindField('i-regcom','issuer.regCom');
+bindField('i-address','issuer.address');
+bindField('i-iban','issuer.iban');
+bindField('i-bank','issuer.bank');
+bindField('i-email','issuer.email');
+bindField('i-phone','issuer.phone');
+document.getElementById('i-vatexempt').addEventListener('change', e=>{ state.issuer.vatExempt = e.target.checked; render(); });
 
-            <div class="reveal delay-100 flex flex-col justify-center">
-                <h5 class="text-xs tracking-[0.3em] uppercase text-cherii-accent mb-6 font-medium">Adresse</h5>
-                <p class="font-light tracking-wide text-cherii-text/90 leading-relaxed">
-                    12 Rue des Francs Bourgeois<br>
-                    75003 Paris, France<br><br>
-                    <a href="mailto:bonjour@cheriicafe.fr" class="hover:text-cherii-gold transition-colors font-medium">bonjour@cheriicafe.fr</a>
-                </p>
-            </div>
+bindField('c-name','client.name');
+bindField('c-cui','client.cui');
+bindField('c-address','client.address');
+bindField('c-email','client.email');
 
-            <div class="reveal delay-200 flex flex-col justify-center">
-                <h5 class="text-xs tracking-[0.3em] uppercase text-cherii-accent mb-6 font-medium">Horaires</h5>
-                <ul class="font-light tracking-wide text-cherii-text/90 space-y-3">
-                    <li class="flex justify-between md:justify-start md:gap-8">
-                        <span class="w-24">Lun - Ven</span>
-                        <span class="font-medium">08:30 - 19:00</span>
-                    </li>
-                    <li class="flex justify-between md:justify-start md:gap-8">
-                        <span class="w-24">Samedi</span>
-                        <span class="font-medium">09:30 - 20:00</span>
-                    </li>
-                    <li class="flex justify-between md:justify-start md:gap-8 text-cherii-gold/90">
-                        <span class="w-24">Dimanche</span>
-                        <span class="font-medium">10:00 - 18:00</span>
-                    </li>
-                </ul>
-            </div>
-        </div>
+bindField('m-series','series');
+bindField('m-number','number', v=>parseInt(v)||1);
+bindField('m-issue','issueDate');
+bindField('m-due','dueDate');
+bindField('m-place','place');
+document.getElementById('m-currency').addEventListener('change', e=>{ state.currency = e.target.value; render(); });
+document.getElementById('m-status').addEventListener('change', e=>{ state.status = e.target.value; render(); });
 
-        <div class="relative z-10 max-w-[1400px] mx-auto px-6 md:px-16 mt-24 pt-8 border-t border-cherii-gold/20 flex flex-col md:flex-row justify-between items-center text-xs tracking-widest text-cherii-text/60 font-light reveal delay-300">
-            <p>&copy; 2026 CHERII CAFE. All rights reserved.</p>
-            <div class="flex space-x-6 mt-4 md:mt-0">
-                <a href="#" class="hover:text-cherii-gold transition-colors">Mentions Légales</a>
-                <a href="#" class="hover:text-cherii-gold transition-colors">CGV</a>
-            </div>
-        </div>
-    </footer>
+document.getElementById('add-item').addEventListener('click', ()=>{
+  state.items.push({ id:uid(), name:'', qty:1, unit:'buc', price:0, vat:19 });
+  renderItemsForm();
+  render();
+});
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // --- Scroll reveal ---
-            const observerOptions = { root: null, rootMargin: '0px', threshold: 0.12 };
-            const observer = new IntersectionObserver((entries, obs) => {
-                entries.forEach((entry, i) => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('active');
-                        obs.unobserve(entry.target);
-                    }
-                });
-            }, observerOptions);
-            document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+document.querySelectorAll('.template-opt').forEach(el=>{
+  el.addEventListener('click', ()=>{
+    const tpl = el.dataset.tpl;
+    if(tpl !== 'classic' && !state.isPro){
+      document.getElementById('license-input').focus();
+      const msg = document.getElementById('license-msg');
+      msg.textContent = 'Acest șablon necesită licență Pro.';
+      msg.className = 'license-msg err';
+      return;
+    }
+    state.template = tpl;
+    document.querySelectorAll('.template-opt').forEach(o=>o.classList.toggle('active', o===el));
+    render();
+  });
+});
 
-            // --- Header: add .scrolled class on scroll ---
-            const header = document.getElementById('main-header');
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 60) {
-                    header.classList.add('scrolled');
-                } else {
-                    header.classList.remove('scrolled');
-                }
-            }, { passive: true });
+document.getElementById('activate-btn').addEventListener('click', ()=>{
+  const code = document.getElementById('license-input').value.trim();
+  const msg = document.getElementById('license-msg');
+  if(validateLicense(code)){
+    state.isPro = true;
+    state.licenseCode = code;
+    msg.textContent = 'Licență activată. Mulțumim!';
+    msg.className = 'license-msg ok';
+    refreshProUI();
+    render();
+  } else {
+    msg.textContent = 'Cod invalid. Verifică și încearcă din nou.';
+    msg.className = 'license-msg err';
+  }
+});
 
-            // --- Mobile menu toggle ---
-            const hamburger = document.getElementById('hamburger');
-            const mobileMenu = document.getElementById('mobile-menu');
-            hamburger.addEventListener('click', () => {
-                hamburger.classList.toggle('open');
-                mobileMenu.classList.toggle('open');
-                document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
-            });
-            document.querySelectorAll('.mobile-nav-link').forEach(link => {
-                link.addEventListener('click', () => {
-                    hamburger.classList.remove('open');
-                    mobileMenu.classList.remove('open');
-                    document.body.style.overflow = '';
-                });
-            });
+document.getElementById('new-invoice-btn').addEventListener('click', ()=>{
+  state.number = (parseInt(state.number)||0) + 1;
+  state.client = { name:'', cui:'', address:'', email:'' };
+  state.items = [ { id:uid(), name:'', qty:1, unit:'buc', price:0, vat:19 } ];
+  state.issueDate = todayISO();
+  state.dueDate = addDaysISO(todayISO(), 15);
+  state.status = 'neplatit';
+  syncFormFromState();
+  renderItemsForm();
+  render();
+});
 
-            // --- Custom Cursor ---
-            const cursor = document.getElementById('custom-cursor');
-            const ring = document.getElementById('custom-cursor-ring');
-            let ringX = 0, ringY = 0, cursorX = 0, cursorY = 0;
-            document.addEventListener('mousemove', e => {
-                cursorX = e.clientX;
-                cursorY = e.clientY;
-                cursor.style.left = cursorX + 'px';
-                cursor.style.top = cursorY + 'px';
-            });
-            // Smooth ring following
-            function animateRing() {
-                ringX += (cursorX - ringX) * 0.12;
-                ringY += (cursorY - ringY) * 0.12;
-                ring.style.left = ringX + 'px';
-                ring.style.top = ringY + 'px';
-                requestAnimationFrame(animateRing);
-            }
-            animateRing();
-            // Cursor expand on hover
-            document.querySelectorAll('a, button').forEach(el => {
-                el.addEventListener('mouseenter', () => {
-                    cursor.style.width = '18px';
-                    cursor.style.height = '18px';
-                    ring.style.width = '56px';
-                    ring.style.height = '56px';
-                    ring.style.borderColor = 'rgba(212,181,149,0.8)';
-                });
-                el.addEventListener('mouseleave', () => {
-                    cursor.style.width = '10px';
-                    cursor.style.height = '10px';
-                    ring.style.width = '36px';
-                    ring.style.height = '36px';
-                    ring.style.borderColor = 'rgba(212,181,149,0.5)';
-                });
-            });
-        });
-    </script>
+document.getElementById('clear-data-btn').addEventListener('click', ()=>{
+  if(confirm('Ștergi toate datele salvate (date firmă, licență)? Acțiunea nu poate fi anulată.')){
+    try{ localStorage.removeItem(STORAGE_KEY); }catch(e){}
+    location.reload();
+  }
+});
+
+document.getElementById('export-xml-btn').addEventListener('click', downloadUBLXML);
+
+/* ---- e-Factura (UBL 2.1 / CIUS-RO) XML export ---- */
+function vatGroups(){
+  const groups = {};
+  state.items.forEach(it=>{
+    const rate = state.issuer.vatExempt ? 0 : (it.vat||0);
+    if(!groups[rate]) groups[rate] = { taxable:0, tax:0 };
+    const line = (it.qty||0) * (it.price||0);
+    groups[rate].taxable += line;
+    groups[rate].tax += state.issuer.vatExempt ? 0 : line * (rate/100);
+  });
+  return groups;
+}
+
+function taxCategoryFor(rate){
+  if(state.issuer.vatExempt) return 'E';
+  if(rate === 0) return 'Z';
+  return 'S';
+}
+
+function buildUBLXML(){
+  const cur = state.currency;
+  const { subtotal, vatTotal, total } = computeTotals();
+  const groups = vatGroups();
+
+  const taxSubtotals = Object.keys(groups).map(rate=>{
+    const g = groups[rate];
+    const cat = taxCategoryFor(parseFloat(rate));
+    const exemptionReason = state.issuer.vatExempt
+      ? '<cbc:TaxExemptionReason>Scutit de TVA conform art. 310 din Codul Fiscal (neplătitor de TVA)</cbc:TaxExemptionReason>'
+      : '';
+    return `
+      <cac:TaxSubtotal>
+        <cbc:TaxableAmount currencyID="${cur}">${g.taxable.toFixed(2)}</cbc:TaxableAmount>
+        <cbc:TaxAmount currencyID="${cur}">${g.tax.toFixed(2)}</cbc:TaxAmount>
+        <cac:TaxCategory>
+          <cbc:ID>${cat}</cbc:ID>
+          <cbc:Percent>${state.issuer.vatExempt ? '0' : rate}</cbc:Percent>
+          ${exemptionReason}
+          <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+        </cac:TaxCategory>
+      </cac:TaxSubtotal>`;
+  }).join('');
+
+  const lines = state.items.map((it, idx)=>{
+    const line = (it.qty||0) * (it.price||0);
+    const rate = state.issuer.vatExempt ? 0 : (it.vat||0);
+    const cat = taxCategoryFor(rate);
+    return `
+      <cac:InvoiceLine>
+        <cbc:ID>${idx+1}</cbc:ID>
+        <cbc:InvoicedQuantity unitCode="${unitCode(it.unit)}">${it.qty}</cbc:InvoicedQuantity>
+        <cbc:LineExtensionAmount currencyID="${cur}">${line.toFixed(2)}</cbc:LineExtensionAmount>
+        <cac:Item>
+          <cbc:Name>${escapeXML(it.name || 'Articol')}</cbc:Name>
+          <cac:ClassifiedTaxCategory>
+            <cbc:ID>${cat}</cbc:ID>
+            <cbc:Percent>${state.issuer.vatExempt ? '0' : rate}</cbc:Percent>
+            <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+          </cac:ClassifiedTaxCategory>
+        </cac:Item>
+        <cac:Price>
+          <cbc:PriceAmount currencyID="${cur}">${(it.price||0).toFixed(2)}</cbc:PriceAmount>
+        </cac:Price>
+      </cac:InvoiceLine>`;
+  }).join('');
+
+  const supplierTax = state.issuer.cui ? `
+      <cac:PartyTaxScheme>
+        <cbc:CompanyID>${escapeXML(state.issuer.cui)}</cbc:CompanyID>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:PartyTaxScheme>` : '';
+
+  const customerTax = state.client.cui ? `
+      <cac:PartyTaxScheme>
+        <cbc:CompanyID>${escapeXML(state.client.cui)}</cbc:CompanyID>
+        <cac:TaxScheme><cbc:ID>VAT</cbc:ID></cac:TaxScheme>
+      </cac:PartyTaxScheme>` : '';
+
+  const paymentMeans = state.issuer.iban ? `
+  <cac:PaymentMeans>
+    <cbc:PaymentMeansCode>30</cbc:PaymentMeansCode>
+    <cac:PayeeFinancialAccount>
+      <cbc:ID>${escapeXML(state.issuer.iban)}</cbc:ID>
+      ${state.issuer.bank ? `<cac:FinancialInstitutionBranch><cbc:Name>${escapeXML(state.issuer.bank)}</cbc:Name></cac:FinancialInstitutionBranch>` : ''}
+    </cac:PayeeFinancialAccount>
+  </cac:PaymentMeans>` : '';
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<Invoice xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2"
+         xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2"
+         xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2">
+  <cbc:CustomizationID>urn:cen.eu:en16931:2017#compliant#urn:efactura.mfinante.ro:CIUS-RO:1.0.1</cbc:CustomizationID>
+  <cbc:ID>${escapeXML(state.series)}-${state.number}</cbc:ID>
+  <cbc:IssueDate>${state.issueDate}</cbc:IssueDate>
+  <cbc:DueDate>${state.dueDate}</cbc:DueDate>
+  <cbc:InvoiceTypeCode>380</cbc:InvoiceTypeCode>
+  <cbc:DocumentCurrencyCode>${cur}</cbc:DocumentCurrencyCode>
+  <cac:AccountingSupplierParty>
+    <cac:Party>
+      <cac:PartyName><cbc:Name>${escapeXML(state.issuer.name)}</cbc:Name></cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>${escapeXML(state.issuer.address)}</cbc:StreetName>
+        <cbc:CityName>${escapeXML(state.place)}</cbc:CityName>
+        <cac:Country><cbc:IdentificationCode>RO</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>${supplierTax}
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>${escapeXML(state.issuer.name)}</cbc:RegistrationName>
+        ${state.issuer.cui ? `<cbc:CompanyID>${escapeXML(state.issuer.cui)}</cbc:CompanyID>` : ''}
+      </cac:PartyLegalEntity>
+      <cac:Contact>
+        ${state.issuer.phone ? `<cbc:Telephone>${escapeXML(state.issuer.phone)}</cbc:Telephone>` : ''}
+        ${state.issuer.email ? `<cbc:ElectronicMail>${escapeXML(state.issuer.email)}</cbc:ElectronicMail>` : ''}
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingSupplierParty>
+  <cac:AccountingCustomerParty>
+    <cac:Party>
+      <cac:PartyName><cbc:Name>${escapeXML(state.client.name)}</cbc:Name></cac:PartyName>
+      <cac:PostalAddress>
+        <cbc:StreetName>${escapeXML(state.client.address)}</cbc:StreetName>
+        <cac:Country><cbc:IdentificationCode>RO</cbc:IdentificationCode></cac:Country>
+      </cac:PostalAddress>${customerTax}
+      <cac:PartyLegalEntity>
+        <cbc:RegistrationName>${escapeXML(state.client.name)}</cbc:RegistrationName>
+      </cac:PartyLegalEntity>
+      <cac:Contact>
+        ${state.client.email ? `<cbc:ElectronicMail>${escapeXML(state.client.email)}</cbc:ElectronicMail>` : ''}
+      </cac:Contact>
+    </cac:Party>
+  </cac:AccountingCustomerParty>${paymentMeans}
+  <cac:TaxTotal>
+    <cbc:TaxAmount currencyID="${cur}">${vatTotal.toFixed(2)}</cbc:TaxAmount>${taxSubtotals}
+  </cac:TaxTotal>
+  <cac:LegalMonetaryTotal>
+    <cbc:LineExtensionAmount currencyID="${cur}">${subtotal.toFixed(2)}</cbc:LineExtensionAmount>
+    <cbc:TaxExclusiveAmount currencyID="${cur}">${subtotal.toFixed(2)}</cbc:TaxExclusiveAmount>
+    <cbc:TaxInclusiveAmount currencyID="${cur}">${total.toFixed(2)}</cbc:TaxInclusiveAmount>
+    <cbc:PayableAmount currencyID="${cur}">${total.toFixed(2)}</cbc:PayableAmount>
+  </cac:LegalMonetaryTotal>${lines}
+</Invoice>`;
+}
+
+function downloadUBLXML(){
+  const xml = buildUBLXML();
+  const blob = new Blob([xml], { type:'application/xml' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${state.series}-${state.number}.xml`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById('print-btn').addEventListener('click', ()=> window.print());
+
+/* ---- init ---- */
+loadState();
+syncFormFromState();
+renderItemsForm();
+render();
+</script>
 </body>
 </html>
